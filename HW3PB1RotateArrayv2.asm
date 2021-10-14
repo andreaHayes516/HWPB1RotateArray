@@ -3,7 +3,7 @@
 
 INCLUDE Irvine32.inc
 
-;.386
+.386
 .stack 4096
 ExitProcess proto,dwExitCode:dword
 
@@ -11,7 +11,6 @@ ExitProcess proto,dwExitCode:dword
 
 arrayA DWORD 1,2,3,4,5
 comma BYTE ", ",0
-register TEXTEQU	<eax>
 
 .code
 
@@ -52,19 +51,24 @@ rotateLeft PROC
 	mov edx, 0               ;set i=0
 	dec ecx					 ;subtract 1 from size of array
 
+	arrayOffset TEXTEQU	<esi>
+	temp TEXTEQU <ebx>
+	temp2 TEXTEQU	<ebp>
+	i TEXTEQU	<edx>
+	iPlusOne TEXTEQU	<eax>
 
 L3:
 	
 	;swap(i,i+1)
 	;first element + i * data type size
-	mov ebx, [esi + edx * TYPE arrayA] ;temp=array[i]
-	mov register, edx 
-	inc register
-	mov ebp, [esi + register * TYPE arrayA] ;temp2=array[i+1]
-	mov [esi + edx * TYPE arrayA], ebp ;array[i]=temp
-	mov [esi + register * TYPE arrayA], ebx ;array[i+1]=temp2
+	mov temp, [arrayOffset + i * TYPE arrayA] ;temp=array[i]
+	mov iPlusOne, i 
+	inc iPlusOne
+	mov temp2, [arrayOffset + iPlusOne * TYPE arrayA] ;temp2=array[i+1]
+	mov [arrayOffset + i * TYPE arrayA], temp2 ;array[i]=temp
+	mov [arrayOffset + iPlusOne * TYPE arrayA], temp ;array[i+1]=temp2
 	;i++
-	inc edx
+	inc i
 	;jmp L3
 	loop L3
 
