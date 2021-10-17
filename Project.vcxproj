@@ -11,9 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="..\..\..\Downloads\HW3PB1RotateArrayv1.asm" />
-    <MASM Include="HW3PB1RotateArrayv2.asm" />
-    <MASM Include="HW3PB1RotateArrayv3.asm" />
+    <MASM Include="Homework4Problem2SumArray.asm" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4164AA65-1EF9-4E69-899B-D1BED776070B}</ProjectGuid>

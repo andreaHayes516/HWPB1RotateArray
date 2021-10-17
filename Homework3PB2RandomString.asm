@@ -6,22 +6,29 @@ INCLUDE Irvine32.inc
 .stack 4096
 ;ExitProcess proto,dwExitCode:dword
 
-
+alphaSize = 26
+asciiA = 65
+L = 20
+N = 10
 
 .data
 words BYTE L DUP(?) 
-L=20
+
 .code
 
 main PROC
 	
 	call ClrScr				;Clears screen
 	mov esi, OFFSET words   ;offset value of L into esi
-	mov ecx,20				;set the counter to 20
+	mov ecx,N			;set the counter to 20
 	L1:
+		push ecx
+		mov ecx,L
 		call randomString   ;Calls function
+		mov edx, OFFSET words
+		call WriteString
 		call Crlf			;End of line sequence
-		
+		pop ecx
 	LOOP L1
 	
 	exit
@@ -29,15 +36,18 @@ main ENDP
 
 randomString PROC USES eax ecx esi
 
-    mov ecx, LENGTHOF words		;put the Lengthof array into ecx, making it the counter
+    mov edx,0
 
 	L2:
-		mov eax,26				;ASCII code into eax
+		mov eax,alphaSize			
 		call RandomRange		;Generates a random integer
-		add eax,65				;ASCII code into eax
-		mov [esi],eax			;puts eax into esi
-		call WriteChar			;Writes single character to screen
+		add eax,asciiA				
+
+		mov [esi + edx * TYPE words],eax			
+		inc edx
+
 	LOOP L2
+	
 
 	ret
 randomString ENDP

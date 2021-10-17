@@ -3,9 +3,12 @@
 
 INCLUDE Irvine32.inc
 
-.386
-.stack 4096
-ExitProcess proto,dwExitCode:dword
+arrayOffset TEXTEQU	<esi>
+arrayLength TEXTEQU <ecx>
+temp TEXTEQU <ebx>
+temp2 TEXTEQU	<ebp>
+i TEXTEQU	<edx>
+iPlusOne TEXTEQU	<eax>
 
 .data
 
@@ -16,51 +19,45 @@ comma BYTE ", ",0
 
 main PROC
 
-	mov esi, OFFSET arrayA   ;put first element in esi
-	mov ecx, LENGTHOF arrayA ;set loop count,which is the array size, into ecx
-	cld							; clear direction flag
+	mov arrayOffset, OFFSET arrayA ;put first element in esi  
+	mov arrayLength, LENGTHOF arrayA ;set loop count,which is the array size, into ecx
+	cld							
 
 	L1:
-		lodsd					;loads [esi] into eax
-		call WriteInt			; send eax to output
-		mov edx, OFFSET comma
-		call Writestring		; display comma
+		lodsd					
+		call WriteInt			
+		mov i, OFFSET comma
+		call Writestring		
 		loop L1
 
 	call Crlf
 
-	call rotateLeft         ;calls the rotateLeft function
+	mov arrayOffset, OFFSET arrayA ;put first element in esi  
+	mov arrayLength, LENGTHOF arrayA ;set loop count,which is the array size, into ecx
+	cld			
+	call rotateLeft         
 
-	mov esi, OFFSET arrayA   ;put first element in esi
-	mov ecx, LENGTHOF arrayA ;set loop count,which is the array size, into ecx
-	cld							;clear direction flag
+	mov arrayOffset, OFFSET arrayA ;put first element in esi  
+	mov arrayLength, LENGTHOF arrayA ;set loop count,which is the array size, into ecx
+	cld							
 	
 	L2:
-		lodsd					;loads [esi] into eax
-		call WriteInt			;send to output
-		mov edx, OFFSET comma
-		call Writestring		;display comma
+		lodsd					
+		call WriteInt			
+		mov i, OFFSET comma
+		call Writestring		
 		loop L2
 	exit
 main ENDP
 
-rotateLeft PROC
+rotateLeft PROC USES arrayOffset arrayLength
 
-	mov esi, OFFSET arrayA   ;put first element in esi
-	mov ecx, LENGTHOF arrayA ;set loop count,which is the array size, into ecx
-	mov edx, 0               ;set i=0
-	dec ecx					 ;subtract 1 from size of array
+	mov i, 0               
+	dec arrayLength					 
 
-	arrayOffset TEXTEQU	<esi>
-	temp TEXTEQU <ebx>
-	temp2 TEXTEQU	<ebp>
-	i TEXTEQU	<edx>
-	iPlusOne TEXTEQU	<eax>
 
 L3:
-	
-	;swap(i,i+1)
-	;first element + i * data type size
+
 	mov temp, [arrayOffset + i * TYPE arrayA] ;temp=array[i]
 	mov iPlusOne, i 
 	inc iPlusOne
@@ -75,4 +72,3 @@ L3:
 	ret
 rotateLeft ENDP
 END main
-
