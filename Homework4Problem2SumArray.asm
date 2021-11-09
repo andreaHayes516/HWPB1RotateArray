@@ -5,64 +5,111 @@ INCLUDE Irvine32.inc
 
 .stack 4096
 ExitProcess proto,dwExitCode:dword
+
 N= 10
+j TEXTEQU <ebx>
+k TEXTEQU <edx>
+
 .data
-array DWORD N DUP(?)
-j DWORD ?
-k DWORD ?
+array DWORD 10,20,30,40,50,60,70,80,90,100
 
-sayArray BYTE "Array: ", 0
-saySummedArray BYTE "Summed Array: ", 0
-
+plus BYTE "+",0
+equals BYTE " = ",0
 
 .code
 
 main PROC
 
 	call Clrscr
-    mov j, -50
-    mov k, 50
+
     mov esi, OFFSET array
+
+    ;sum elements 5 through 9
+    ;60+70+80+90+100=400
+    mov j, 5
+    mov k, 9
+    call sumArray
+    
+   ;sum elements 0 through 5
+   ;10+20+30+40+50+60=210
+
+    mov j, 0
+    mov k, 5
     mov ecx, N
     call sumArray
 
-    mov j, 75
-    mov k, 950
-    mov esi, OFFSET array
-    mov ecx, N
+    ;j>k no valid response, return 0
+    mov j, 9
+    mov k, 7
     call sumArray
 
+    ;j>=N no valid response, return 0
+    mov j, 10
+    mov k, 12
+    call sumArray
+
+    ;j=k=7  80
+    mov j, 7
+    mov k, 7
+    call sumArray
+   
     call WaitMsg
 	
 	exit
 main ENDP
 
-sumArray PROC USES ecx esi
-	call Randomize
-	mov edx, OFFSET sayArray
-	call WriteString
-	mov edx, 0
-	
-	L1:
-		mov eax, j
-		mov ebx, k
-		inc ebx
-		sub ebx, eax
-		call RandomRange
-		neg ebx
-		sub eax, ebx
-		call WriteInt
-		mov [esi],eax
-		add edx, [esi]
-		add esi, TYPE WORD
-	LOOP L1
+sumArray PROC USES ecx esi edx
 
-	call crlf
-	xchg edx, eax
-	mov edx, OFFSET saySummedArray
-	call WriteString 
+    ;setup return value
+	mov eax, 0
+    
+    ;check j is less than array length
+    mov ecx, j
+    cmp ecx, N
+    jge RETURN
+   
+    ;set pointer the jth element
+    mov ecx, j
+    L1:
+        add esi, TYPE DWORD
+    LOOP L1
+
+    ;set ecx to the difference of k and j
+    mov ecx, k
+    sub ecx, j
+    add ecx, 1
+
+    ;check k is more than j
+   cmp ecx, 1
+   jnge RETURN
+
+    L2:
+		push eax
+		mov eax, [esi]
+		call WriteInt
+		pop eax
+
+		push edx
+		mov edx,OFFSET plus
+		call WriteString
+		pop edx
+
+		; add the current value to the return
+		add eax, [esi]
+		; move to next value in array
+		add esi, TYPE DWORD
+        
+	LOOP L2
+
+    RETURN: 
+
+	push edx
+	mov edx, OFFSET equals
+	call WriteString
+	pop edx
+
 	call WriteInt
-	call crlf
+	call CrLf
 
 	ret
 sumArray ENDP

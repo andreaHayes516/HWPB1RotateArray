@@ -1,9 +1,9 @@
-Microsoft (R) Macro Assembler Version 14.28.29913.0	    10/17/21 14:39:15
-Homework4Problem2SumArray.asm				     Page 1 - 1
+Microsoft (R) Macro Assembler Version 14.28.29913.0	    11/09/21 14:07:44
+Homework5Problem2WITHOUTConditionlDirectives.asm	     Page 1 - 1
 
 
 				; Andrea Hayes
-				; Homework 4 Problem 2 Sum Array
+				; Homework 5 Problem 2 Encyrtption WITHOUT Conditional Control Flow Directives
 
 				INCLUDE Irvine32.inc
 			      C ; Include file for Irvine32.lib             (Irvine32.inc)
@@ -25,87 +25,105 @@ Homework4Problem2SumArray.asm				     Page 1 - 1
 			      C 
 
 				.stack 4096
-				ExitProcess proto,dwExitCode:dword
- = 0000000A			N= 10
+				ExitProcess proto, dwExitCode:dword
+
+
  00000000			.data
- 00000000  0000000A [		array DWORD N DUP(?)
-	    00000000
-	   ]
- 00000028 00000000		j DWORD ?
- 0000002C 00000000		k DWORD ?
-
- 00000030 41 72 72 61 79	sayArray BYTE "Array: ", 0
-	   3A 20 00
- 00000038 53 75 6D 6D 65	saySummedArray BYTE "Summed Array: ", 0
-	   64 20 41 72 72
-	   61 79 3A 20 00
-
+ 00000000 FE 04 01 00 FD	key BYTE -2, 4, 1, 0, -3, 5, 2 -4, -4, 6
+	   05 FE FC 06
+ 00000009 54 68 65 20 62	string1 BYTE "The body is buried in the backyard.",0
+	   6F 64 79 20 69
+	   73 20 62 75 72
+	   69 65 64 20 69
+	   6E 20 74 68 65
+	   20 62 61 63 6B
+	   79 61 72 64 2E
+	   00
 
  00000000			.code
 
  00000000			main PROC
 
  00000000  E8 00000000 E		call Clrscr
- 00000005  C7 05 00000028 R	    mov j, -50
-	   FFFFFFCE
- 0000000F  C7 05 0000002C R	    mov k, 50
-	   00000032
- 00000019  BE 00000000 R	    mov esi, OFFSET array
- 0000001E  B9 0000000A		    mov ecx, N
- 00000023  E8 0000002F		    call sumArray
-
- 00000028  C7 05 00000028 R	    mov j, 75
-	   0000004B
- 00000032  C7 05 0000002C R	    mov k, 950
-	   000003B6
- 0000003C  BE 00000000 R	    mov esi, OFFSET array
- 00000041  B9 0000000A		    mov ecx, N
- 00000046  E8 0000000C		    call sumArray
-
- 0000004B  E8 00000000 E	    call WaitMsg
+					;Display string 
+ 00000005  BA 00000009 R		mov edx, OFFSET string1
+ 0000000A  E8 00000000 E		call WriteString
+ 0000000F  E8 00000000 E		call crlf
 					
-					exit
- 00000050  6A 00	   *	    push   +000000000h
- 00000052  E8 00000000 E   *	    call   ExitProcess
- 00000057			main ENDP
+					;Move string to esi
+ 00000014  BE 00000009 R		mov esi, OFFSET string1
+ 00000019  B9 00000024			mov ecx, LENGTHOF string1 
+ 0000001E  BF 00000000 R		mov edi, OFFSET key
+ 00000023  E8 00000011			call Encryption 
+ 00000028  BA 00000009 R		mov edx, OFFSET string1
+ 0000002D  E8 00000000 E		call WriteString
 
- 00000057			sumArray PROC USES ecx esi
- 00000057  51		   *	    push   ecx
- 00000058  56		   *	    push   esi
- 00000059  E8 00000000 E		call Randomize
- 0000005E  BA 00000030 R		mov edx, OFFSET sayArray
- 00000063  E8 00000000 E		call WriteString
- 00000068  BA 00000000			mov edx, 0
+				exit
+ 00000032  6A 00	   *	    push   +000000000h
+ 00000034  E8 00000000 E   *	    call   ExitProcess
+ 00000039			main ENDP
+
+
+ 00000039			Encryption PROC USES eax
+
+					;mov eax, [edi]
+					;call WriteInt
+					;call CrLf
+
+					;counter for loop
 					
- 0000006D				L1:
- 0000006D  A1 00000028 R			mov eax, j
- 00000072  8B 1D 0000002C R			mov ebx, k
- 00000078  43					inc ebx
- 00000079  2B D8				sub ebx, eax
- 0000007B  E8 00000000 E			call RandomRange
- 00000080  F7 DB				neg ebx
- 00000082  2B C3				sub eax, ebx
- 00000084  E8 00000000 E			call WriteInt
- 00000089  89 06				mov [esi],eax
- 0000008B  03 16				add edx, [esi]
- 0000008D  83 C6 02				add esi, TYPE WORD
- 00000090  E2 DB			LOOP L1
+					;mov ebx, 0 ; set counter to 0 
 
- 00000092  E8 00000000 E		call crlf
- 00000097  92				xchg edx, eax
- 00000098  BA 00000038 R		mov edx, OFFSET saySummedArray
- 0000009D  E8 00000000 E		call WriteString 
- 000000A2  E8 00000000 E		call WriteInt
- 000000A7  E8 00000000 E		call crlf
+ 00000039  50		   *	    push   eax
+ 0000003A				L1:
 
-					ret
- 000000AC  5E		   *	    pop    esi
- 000000AD  59		   *	    pop    ecx
- 000000AE  C3		   *	    ret    00000h
- 000000AF			sumArray ENDP
+						;get nth key value modulus key length
+						;mov cl, [edi]
+						;movzx eax, cl
+						;call WriteInt
+						;call CrLf
+						
+
+						;get nth character
+						;mov eax, [esi]
+						;call WriteInt
+ 0000003A  8A 0F				mov cl, [edi]
+ 0000003C  80 F9 00				cmp cl, 0
+ 0000003F  74 0A				je ENDOFLOOP ;no rotation if equal to zero
+ 00000041  7F 02				jg ROTATERIGHT ;positive value so rotate string right    
+					
+						;if less than zero rotate left
+ 00000043  D2 06				rol BYTE PTR[esi], cl 
+
+						;jump rotate right
+ 00000045					ROTATERIGHT:
+
+ 00000045  D2 0E				ror BYTE PTR[esi], cl
+
+ 00000047  E2 FC				LOOP ROTATERIGHT
+
+						;call WriteChar
+						;call crlf
+
+						;modify nth character by key in nth position
+						;write character back to nth position in string
+						
+ 00000049  46					inc esi
+ 0000004A  47					inc edi
+
+ 0000004B					ENDOFLOOP:
+
+ 0000004B  E2 ED			LOOP L1
+
+
+				ret
+ 0000004D  58		   *	    pop    eax
+ 0000004E  C3		   *	    ret    00000h
+ 0000004F			Encryption ENDP 
+
 				END main
-Microsoft (R) Macro Assembler Version 14.28.29913.0	    10/17/21 14:39:15
-Homework4Problem2SumArray.asm				     Symbols 2 - 1
+Microsoft (R) Macro Assembler Version 14.28.29913.0	    11/09/21 14:07:44
+Homework5Problem2WITHOUTConditionlDirectives.asm	     Symbols 2 - 1
 
 
 
@@ -198,8 +216,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000047 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000000AF Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 0000002D Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000004F Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -215,6 +233,10 @@ Crlf . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 Delay  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 DumpMem  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 DumpRegs . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Encryption . . . . . . . . . . .	P Near	 00000039 _TEXT	Length= 00000016 Public STDCALL
+  L1 . . . . . . . . . . . . . .	L Near	 0000003A _TEXT	
+  ROTATERIGHT  . . . . . . . . .	L Near	 00000045 _TEXT	
+  ENDOFLOOP  . . . . . . . . . .	L Near	 0000004B _TEXT	
 ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 FileTimeToDosDateTime  . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 FileTimeToSystemTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -306,11 +328,9 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000057 Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000039 Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
-sumArray . . . . . . . . . . . .	P Near	 00000057 _TEXT	Length= 00000058 Public STDCALL
-  L1 . . . . . . . . . . . . . .	L Near	 0000006D _TEXT	
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 
 
@@ -429,7 +449,6 @@ MOUSE_EVENT  . . . . . . . . . .	Number	 00000002h
 MessageBox . . . . . . . . . . .	Text   	 MessageBoxA
 NULL . . . . . . . . . . . . . .	Number	 00000000h   
 NUMLOCK_ON . . . . . . . . . . .	Number	 00000020h   
-N  . . . . . . . . . . . . . . .	Number	 0000000Ah   
 OPEN_ALWAYS  . . . . . . . . . .	Number	 00000004h   
 OPEN_EXISTING  . . . . . . . . .	Number	 00000003h   
 PeekConsoleInput . . . . . . . .	Text   	 PeekConsoleInputA
@@ -528,7 +547,6 @@ VK_UP  . . . . . . . . . . . . .	Number	 00000026h
 WINDOW_BUFFER_SIZE_EVENT . . . .	Number	 00000004h   
 WriteConsoleOutputCharacter  . .	Text   	 WriteConsoleOutputCharacterA
 WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
-array  . . . . . . . . . . . . .	DWord	 00000000 _DATA	
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
@@ -536,8 +554,7 @@ cyan . . . . . . . . . . . . . .	Number	 00000003h
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
-j  . . . . . . . . . . . . . . .	DWord	 00000028 _DATA	
-k  . . . . . . . . . . . . . . .	DWord	 0000002C _DATA	
+key  . . . . . . . . . . . . . .	Byte	 00000000 _DATA	
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
 lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
 lightGray  . . . . . . . . . . .	Number	 00000007h   
@@ -546,8 +563,7 @@ lightMagenta . . . . . . . . . .	Number	 0000000Dh
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
 red  . . . . . . . . . . . . . .	Number	 00000004h   
-sayArray . . . . . . . . . . . .	Byte	 00000030 _DATA	
-saySummedArray . . . . . . . . .	Byte	 00000038 _DATA	
+string1  . . . . . . . . . . . .	Byte	 00000009 _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   
