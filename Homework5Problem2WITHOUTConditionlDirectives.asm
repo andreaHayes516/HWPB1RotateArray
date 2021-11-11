@@ -10,7 +10,7 @@ ExitProcess proto, dwExitCode:dword
 .data
 key BYTE -2, 4, 1, 0, -3, 5, 2 -4, -4, 6
 string1 BYTE "The body is buried in the backyard.",0
-
+string2 BYTE "Under the old oak tree.",0
 .code
 
 main PROC
@@ -23,11 +23,26 @@ main PROC
 	
 	;Move string to esi
 	mov esi, OFFSET string1
-	mov ecx, LENGTHOF string1 
 	mov edi, OFFSET key
+	mov ecx, LENGTHOF string1 
 	call Encryption 
 	mov edx, OFFSET string1
 	call WriteString
+	call crlf
+
+	;Display string 
+	mov edx, OFFSET string2
+	call WriteString
+	call crlf
+	
+	;Move string to esi
+	mov esi, OFFSET string2
+	mov ecx, LENGTHOF string2
+	mov edi, OFFSET key
+	call Encryption 
+	mov edx, OFFSET string2
+	call WriteString
+
 
 exit
 main ENDP
@@ -44,7 +59,7 @@ Encryption PROC USES eax
 	;mov ebx, 0 ; set counter to 0 
 
 	L1:
-
+		push ecx
 		;get nth key value modulus key length
 		;mov cl, [edi]
 		;movzx eax, cl
@@ -58,29 +73,28 @@ Encryption PROC USES eax
 		mov cl, [edi]
 		cmp cl, 0
 		je ENDOFLOOP ;no rotation if equal to zero
-		jg ROTATERIGHT ;positive value so rotate string right    
+		jl ROTATERIGHT ;positive value so rotate string right    
 	
 		;if less than zero rotate left
 		rol BYTE PTR[esi], cl 
+		jmp ENDOFLOOP
 
 		;jump rotate right
 		ROTATERIGHT:
-
 		ror BYTE PTR[esi], cl
 
-		LOOP ROTATERIGHT
 
 		;call WriteChar
 		;call crlf
 
 		;modify nth character by key in nth position
 		;write character back to nth position in string
-		
+		ENDOFLOOP:
+
 		inc esi
 		inc edi
 
-		ENDOFLOOP:
-
+		pop ecx
 	LOOP L1
 
 
